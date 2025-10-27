@@ -1,0 +1,9 @@
+int x = 10;
+float y = 25;
+x = x + y;
+if (x > y) {
+    x = x - 1;
+}
+else {
+    y = y + 1;
+}
