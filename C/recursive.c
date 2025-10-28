@@ -1,96 +1,69 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-void E();
-void E_();
-void T();
-void T_();
-void F();
-void error();
+#include <ctype.h>
 
 char input[100];
-int index = 0;
-char lookahead;
-int step = 1;
+int i = 0;
+int error = 0;
 
-void printStep(const char *production) {
-    printf("%-5d | %-15s | %s\n", step++, production, input + index);
+void E();
+void Eprime();
+void T();
+void Tprime();
+void F();
+
+int main() {
+    printf("Enter input string: ");
+    gets(input);  // use with caution (lab version)
+    E();
+
+    if (strlen(input) == i && error == 0) {
+        printf("Input accepted.\n");
+    } else {
+        printf("Error!\nInput rejected.\n");
+    }
+
+    return 0;
 }
 
 void E() {
-    printStep("E -> T E'");
     T();
-    E_();
+    Eprime();
 }
 
-void E_() {
-    if (lookahead == '+') {
-        printStep("E' -> + T E'");
-        lookahead = input[++index];
+void Eprime() {
+    if (input[i] == '+') {
+        i++;
         T();
-        E_();
-    } else {
-        printStep("E' -> ε");
+        Eprime();
     }
 }
 
 void T() {
-    printStep("T -> F T'");
     F();
-    T_();
+    Tprime();
 }
 
-void T_() {
-    if (lookahead == '*') {
-        printStep("T' -> * F T'");
-        lookahead = input[++index];
+void Tprime() {
+    if (input[i] == '*') {
+        i++;
         F();
-        T_();
-    } else {
-        printStep("T' -> ε");
+        Tprime();
     }
 }
 
 void F() {
-    if (lookahead == 'i' && input[index + 1] == 'd') {
-        printStep("F -> id");
-        index += 2;  // consume "id"
-        lookahead = input[index];
-    } else if (lookahead == '(') {
-        printStep("F -> (E)");
-        lookahead = input[++index];
+    if (isalpha(input[i])) {
+        i++;
+    } else if (input[i] == '(') {
+        i++;
         E();
-        if (lookahead == ')') {
-            lookahead = input[++index];
+        if (input[i] == ')') {
+            i++;
         } else {
-            error();
+            error = 1;
         }
     } else {
-        error();
+        error = 1;
     }
-}
-
-void error() {
-    printf("\nError in parsing\n");
-    exit(1);
-}
-
-int main() {
-    printf("Enter the input string (end with $): ");
-    scanf("%s", input);
-    lookahead = input[index];
-
-    printf("\nStep  | Production      | Remaining Input\n");
-    printf("--------------------------------------------\n");
-
-    E();
-
-    if (lookahead == '$') {
-        printf("--------------------------------------------\n");
-        printf("String accepted \n");
-    } else {
-        error();
-    }
-    return 0;
 }
